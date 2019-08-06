@@ -4,14 +4,33 @@
 
 import logging
 import time
+from copy import deepcopy
 
 from scrapy.dupefilters import BaseDupeFilter
 from scrapy.utils.request import request_fingerprint
+from scrapy.utils.url import canonicalize_url
 
 from . import defaults
+from .utils import dict_hash
 from .connection import get_redis_from_settings
 
 logger = logging.getLogger(__name__)
+
+
+def splash_request_fingerprint(request, include_headers=None):
+    """ Request fingerprint which takes 'splash' meta key into account """
+
+    fp = request_fingerprint(request, include_headers=include_headers)
+    if 'splash' not in request.meta:
+        return fp
+
+    splash_options = deepcopy(request.meta['splash'])
+    args = splash_options.setdefault('args', {})
+
+    if 'url' in args:
+        args['url'] = canonicalize_url(args['url'], keep_fragments=True)
+
+    return dict_hash(splash_options, fp)
 
 
 # TODO: Rename class to RedisDupeFilter.
@@ -123,6 +142,7 @@ class RFPDupeFilter(BaseDupeFilter):
 
     def request_fingerprint(self, request):
         """Returns a fingerprint for a given request.
+        Compatible with scrapy-splash.
 
         Parameters
         ----------
@@ -133,7 +153,7 @@ class RFPDupeFilter(BaseDupeFilter):
         str
 
         """
-        return request_fingerprint(request)
+        return splash_request_fingerprint(request)
 
     @classmethod
     def from_spider(cls, spider):

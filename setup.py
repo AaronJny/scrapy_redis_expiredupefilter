@@ -15,14 +15,14 @@ def find_packages(path):
 
 setup(
     name="scrapy-redis-expiredupefilter",
-    version="0.1.99",
+    version="0.2.1",
     keywords=['scrapy', 'redis', 'expire', 'dupefilter', 'expiredupefilter'],
     description="A distributed crawler component based on scrapy_redis "
                 "which can specify the expiration time of fingerprints in dupefilter.",
     license='MIT',
     author="AaronJny",
     author_email="aaronjny@163.com",
-    url="https://blog.csdn.net/aaronjny",
+    url="https://github.com/AaronJny/scrapy_redis_expiredupefilter",
     packages=list(find_packages('src')),
     package_dir={'': 'src'},
     include_package_data=True,
